@@ -1,7 +1,7 @@
 # TIL
 > Today I Learned
 
-TIL 자동화 테스트중
+배운거 정리
 
 
 _1 TILs and counting..._
@@ -10,14 +10,14 @@ _1 TILs and counting..._
 
 ### 1 most recent TILs
 
-- [요건 몰랐짘ㅋㅋㅋㅋ?](Effective Java/testFile.md) - Thu Jan 18 18:03:03 2024 +0900
+- [추상 메소드 패턴](EffectiveJava/testFile.md) - Thu Jan 18 20:23:38 2024 +0900
 
 ### Categories
 
-- [Effective Java](#Effective Java)
+- [EffectiveJava](#EffectiveJava)
 
-### [Effective Java](#Effective Java)
-- [요건 몰랐짘ㅋㅋㅋㅋ?](Effective Java/testFile.md)
+### [EffectiveJava](#EffectiveJava)
+- [추상 메소드 패턴](EffectiveJava/testFile.md)
 
 [1]: https://simonwillison.net/2020/Apr/20/self-rewriting-readme/
 [2]: https://github.com/jbranchaud/til

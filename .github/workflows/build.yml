@@ -25,8 +25,8 @@ jobs:
         list_most_recent: 2 # optional, lists most recent TILS below description
         date_format: "2020 Jan 15:04" # optional, must align to https://golang.org/pkg/time/#Time.Format
     # github/workspace 권한 해결용 추가 작업
-    - name: Grant safe.directory permissions
-      uses: actions/set-permissions@v2
-      with:
-        target: github/workspace
-        permissions: safe.directory
+    # - name: Grant safe.directory permissions
+    #   uses: actions/set-permissions@v2
+    #   with:
+    #     target: github/workspace
+    #     permissions: safe.directory

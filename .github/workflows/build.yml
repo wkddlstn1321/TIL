@@ -15,7 +15,7 @@ jobs:
         # necessary for github-action-til-autoformat-readme
         fetch-depth: 0
     - name: Autoformat README
-      uses: cflynn07/github-action-til-autoformat-readme@1.2.1
+      uses: cflynn07/github-action-til-autoformat-readme@1.1.0
       with:
         description: |
           TIL 자동화 테스트중
@@ -24,9 +24,3 @@ jobs:
           [2]: https://github.com/jbranchaud/til
         list_most_recent: 2 # optional, lists most recent TILS below description
         date_format: "2020 Jan 15:04" # optional, must align to https://golang.org/pkg/time/#Time.Format
-    # github/workspace 권한 해결용 추가 작업
-    - name: Grant safe.directory permissions
-      uses: actions/set-permissions@v1
-      with:
-        target: github/workspace
-        permissions: safe.directory

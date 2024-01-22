@@ -5,7 +5,9 @@
 
 [Item 2. 매개변수가 많다면 빌더를 고려하라](#생성자에-매개변수가-많다면-빌더를-고려하라)
 
-## 생성자 대신 정적 팩터리 메서드를 고려하라
+[Item 3. 생성자나 열거 타입으로 싱글턴임을 보증하라](#item-3-생성자나-열거-타입으로-싱글턴임을-보증하라)
+
+## Item 1. 생성자 대신 정적 팩터리 메서드를 고려하라
 
 클래스의 인스턴스를 public 생성자로만 얻을 필요는 없다.
 
@@ -15,15 +17,119 @@
 
 **장점**
 1. 이름을 가질 수 있다.
-2. 호출될 때마다 인스턴스를 새로 생성하지 않아도 된다
+2. 인스턴스를 매번 생성하지 않아도 된다
 3. 반환 타입의 하위 타입 객체를 반환할 수 있다.
 4. 입력 매개변수에 따라 매번 다른 클래스의 객체를 반환할 수 있다.
 5. 반환할 객체의 클래스가 존재하지 않아도 된다
 
 **단점**
 1. 생성자 없이 정적 팩터리 메서드만 제공하면 상속할 수 없다.
-2. 정적 팩터리 메서드는 프로그래머가 찾기 어렵다.
+2. 프로그래머에게 인지가 잘 되지 않을 수 있다.
 
-이전까지는 클래스를 생성하고 인스턴스를 반환할 때 무조건 생성자를 사용했는데 정적 팩터리를 사용하는게 유리한 경우가 더 많은것 같다. 
 
-## 생성자에 매개변수가 많다면 빌더를 고려하라
+**정리**
+
+정적 팩터리 메서드와 Public 생성자의 상대적인 장단점을 이해하고 상황에 맞게 골라서 사용하는 것이 좋다
+
+DTO 를 VO 로 컨번터하는 것 같이 객체를 다루는 경우는 정적 팩터리 메서드를, 단순히 변수들을 주입하는 경우에는 생성자를 사용한다던지 본인만에 적절한 기준으로 판단해서 사용하면 되는것 같다.
+
+
+
+
+## Item 2. 생성자에 매개변수가 많다면 Builder를 고려하라
+
+```Java
+public class NutritionFacts {
+    private final int servingSize;  
+    private final int servings;     
+    private final int calories;     
+    private final int fat;          
+    private final int sodium;       
+    private final int carbohydrate; 
+}
+```
+
+위 코드 처럼 생성자에 필요한 매개변수 많을 때 사용할 수 있는 2가지 패턴이있다.
+  * Pattern 1 : 점층적 생성자 패턴
+	
+	필수 매개변수와 선택 매개변수 멤버변수 개수만큼 조합하여 미리 생성자를 여러개 만들어서 인스턴스를 만들 때 필요한 생성자를 호출해서 객체를 생성하는 방식이다.
+
+	단점으로는,
+	매개변수가 많아지면 코드를 작성하거나 읽기 어렵고
+	클래스의 멤버 변수가 추가되면 미리 만들어놨던 모든 생성자를 수정해야 된다는 불편함이 있다.
+
+  * Pattern 2 : Java beans Pattern (Setter)
+	매개변수가 없는 생성자로 객체를 만든 후 Setter 메서드를 호출해 원하는 매개변수의 값을 설정하는 방식이다.
+
+	점층적 생성자 패턴보단 비교적 만들기 쉽고 읽기도 쉬운 코드이지만,
+	갹채 하나를 만들기 위해서 여러 메서드를 호출해야 해서 코드라인이 많이 길어지게 되고 객체가 완전히 생성되기 전까지는 일관성이 무너진 상태이다.
+	프로그래머에게 전적으로 의존해야하는 형태
+
+두 패턴의 장점만을 섞은 방식이 Builder 패턴이다.
+  > Builder 구현
+  ```Java
+  public class NutritionFacts {
+    private final int servingSize;
+    private final int servings;
+    private final int calories;
+    private final int fat;
+    private final int sodium;
+    private final int carbohydrate;
+
+    public static class Builder {
+        // 필수 매개변수
+        private final int servingSize;
+        private final int servings;
+
+        // 선택 매개변수 - 기본값으로 초기화한다.
+        private int calories      = 0;
+        private int fat           = 0;
+        private int sodium        = 0;
+        private int carbohydrate  = 0;
+
+        public Builder(int servingSize, int servings) {
+            this.servingSize = servingSize;
+            this.servings    = servings;
+        }
+
+        public Builder calories(int val)
+        { calories = val;      return this; }
+        public Builder fat(int val)
+        { fat = val;           return this; }
+        public Builder sodium(int val)
+        { sodium = val;        return this; }
+        public Builder carbohydrate(int val)
+        { carbohydrate = val;  return this; }
+
+        public NutritionFacts build() {
+            return new NutritionFacts(this);
+        }
+    }
+
+    private NutritionFacts(Builder builder) {
+        servingSize  = builder.servingSize;
+        servings     = builder.servings;
+        calories     = builder.calories;
+        fat          = builder.fat;
+        sodium       = builder.sodium;
+        carbohydrate = builder.carbohydrate;
+    }
+  }
+  ```
+
+  Lombok에서 제공하는 기본적인 Builder를 그대로 사용해도되고 "hiddenBuilder" 등의 속성을 이용해서 Custom 해서 사용할 수 도 있다.
+
+**장점**
+
+상속받은 Class의 Buidder가 정의한 build 메서드가
+상위 메서드 타입을 return 하는 것이 아닌 자신의 타입을 return한다,
+
+**단점**
+
+1. Builder를 항상 만들어야 하기 때문에 생성 비용이 생긴다.
+2. 점층적 생성자 패턴 보다 장황하여 매개변수가 적으면 오히려 불리할 수 있다.
+
+매개변수가 적은 경우에는 Builder를 사용하지 않고 생성자를 사용하여 구현하는게 좋지만, API는 시간이 지날수록 매개변수가 많아지는 경향이 있기때문에 기능을 잘 고려하여 Builder 사용여부를 판단해야겠다.
+
+
+## Item 3. 생성자나 열거 타입으로 싱글턴임을 보증하라 

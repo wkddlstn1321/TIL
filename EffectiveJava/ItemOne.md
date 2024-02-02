@@ -7,11 +7,65 @@
 
 [Item 3. 생성자나 열거 타입으로 싱글턴임을 보증하라](#item-3-생성자나-열거-타입으로-싱글턴임을-보증하라)
 
+[Item 4. 인스턴스화를 막으려거든 private 생성자를 사용하라](#item-4-인스턴스화를-막으려거든-private-생성자를-사용하라)
+
+[Item 5. 자원을 직접 명시하지 말고 의존 객체 주입을 사용하라](#item-5-자원을-직접-명시하지-말고-의존-객체-주입을-사용하라)
+
 ## Item 1. 생성자 대신 정적 팩터리 메서드를 고려하라
 
 클래스의 인스턴스를 public 생성자로만 얻을 필요는 없다.
 
 상황에 따라 정적 팩터리 메서드를 제공하는게 더 유용할 수 있다.
+
+비교
+```java
+public class Laptop {
+  private String model;
+  private String company;
+
+  // Constructor
+  public Laptop(String model, String company) {
+    this.model = model;
+    this.company = company;
+  }
+
+  // 이름을 가진 Static Factory Method
+  public static Laptop ofModelNameAndCompany(String model, String company) {
+    Laptop laptop = new Laptop();
+    laptop.model = model;
+    laptop.company = company;
+  }
+}
+```
+
+똑같은 기능을 가진 생성자와 정적 팩터리 메서드 코드를 비교해봤다.
+
+코드를 보면 생성자가 훨씬 간단하고, 만약 멤버변수가 많다고 가정해도 Lombok에서 제공하는 @AllArgsConstruct를 사용하면 편하게 구현할 수 있을거 같은데 정적 팩터리 메서드는 언제 사용?
+
+```java
+public class LaptopForm {
+  private String model;
+  private String company;
+}
+
+@PostMapping(value = "/add")
+public LaptopDto addLapTop(@RequestBody LaptopForm laptopForm) {
+// 생략
+}
+
+public class Laptop {
+  private String model;
+  private String company;
+  // laptopForm 객체를 Laptop으로 convert
+  public Laptop From(LaptopForm laptopForm) {
+    Laptop laptop = new Laptop();
+    laptop.model = laptopForm.getModel;
+    laptop.company = laptopForm.getCompany;
+  }
+}
+
+```
+LaptopForm 객체를 받는 정적 팩토리 메서드로 Laptop 객체를 만드는 예시
 
 | **장점과 단점**
 
@@ -34,9 +88,11 @@
 지금까지는 목적이 무엇이던 객체를 만들 때 정적 팩터리 메서드는 고려해본적이 없없는데,
 미리 알고있었다면 유용하게 사용할만한 기회가 없지 않았던거 같다.
 
-다음부터는 DTO 를 VO 로 컨번터하는 것 같이 객체를 다루는 경우는 정적 팩터리 메서드를, 단순히 변수들을 주입하는 경우에는 생성자를 사용한다던지 본인만에 적절한 기준으로 판단해서 사용하면 될 것 같다.
+다음부터는 예시처럼 DTO 를 VO 로 컨번터하는 것 같이 객체를 다루는 경우는 정적 팩터리 메서드를, 단순히 변수들을 주입하는 경우에는 생성자를 사용한다던지 본인만에 적절한 기준으로 판단해서 사용하면 될 것 같다.
 
+하지만, 생성자로도 충분히 가능한거 같긴해서 이름을 가져서 기능을 명확하게 표현해 줄 수 있는거 말고는 아직 장점이 애매하다...
 
+나중에 경험이 쌓이면 추가해보겠다.
 
 
 ## Item 2. 생성자에 매개변수가 많다면 Builder를 고려하라
@@ -132,9 +188,28 @@ public class NutritionFacts {
 1. Builder를 항상 만들어야 하기 때문에 생성 비용이 생긴다.
 2. 점층적 생성자 패턴 보다 장황하여 매개변수가 적으면 오히려 불리할 수 있다.
 
+**정리**
+
 매개변수가 적은 경우에는 Builder를 사용하지 않고 생성자를 사용하여 구현하는게 좋지만, API는 시간이 지날수록 매개변수가 많아지는 경향이 있기때문에 기능을 잘 고려하여 Builder 사용여부를 판단해야겠다.
 
 
 ## Item 3. 생성자나 열거 타입으로 싱글턴임을 보증하라 
 
-열거 타입으로 싱글턴을 만들어줄 수 있다.
+public static member
+
+INSTANCE 가 초기화 되고 나면 고정이 된다.
+
+```java
+//정적 팩터리 방싱의 싱글턴
+public class Elvis {
+    private static final Elvis INSTANCE = new Elvis();
+    private Elvis() { }
+    public static Elvis getInstance() { return INSTANCE; }
+}
+```
+
+
+
+## Item 4. 인스턴스화를 막으려거든 private 생성자를 사용하라
+
+## Item 5. 자원을 직접 명시하지 말고 의존 객체 주입을 사용하라

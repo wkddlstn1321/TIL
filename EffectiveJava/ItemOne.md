@@ -198,17 +198,55 @@ public class NutritionFacts {
 public static member
 
 INSTANCE 가 초기화 되고 나면 고정이 된다.
+```java
+// publlic static final 필드 방식
+public class Elvis {
+    public static final Elvis INSTANCE = new Elvis();
+    private Elvis() { }
+}
+```
 
 ```java
-//정적 팩터리 방싱의 싱글턴
+//정적 팩터리 방식
 public class Elvis {
     private static final Elvis INSTANCE = new Elvis();
     private Elvis() { }
     public static Elvis getInstance() { return INSTANCE; }
 }
 ```
+static 멤버를 private 으로 막은 방식 get함수만 추가된거 같지만 캡슐화를 해준거기 때문에 좀 더 유연하게 사용가능하다.
 
+아래는 책에서 추천하는 방식의 싱글턴
+```java
+// 열거 타입 방식의 싱글턴
+public enum Elvis {
+    INSTANCE;
 
+    public void leaveTheBuilding() {
+        ...
+    }
+
+    // 이 메서드는 보통 클래스 바깥(다른 클래스)에 작성해야 한다!
+    public static void main(String[] args) {
+        Elvis elvis = Elvis.INSTANCE;
+        elvis.leaveTheBuilding();
+    }
+}
+```
+enum 방식의 장점으로 간단한 구현, 복잡한 직렬화 상황이나 리플렉션 공격에서도 보호가 된다. 확장성도 좋다 새로운 싱글턴 인스턴스를 추가할 때 코드를 크게 변경할 필요가 없다.
+
+하지만 단점이 없진않다.
+
+enum 은 상속이 불가능하다. 고로 기존 클래스의 기능을 활용하여 싱글턴을 구현할 수 없다. 
+
+enum의 사용의도와 맞지 않을 수 있다. enum을 싱글턴으로 활용할 수 있다는 내부 구성원끼리 합의도 필요한데 이건 강의에서도 실용성에 대해서는 의문을 갖는 부분
+
+**정리**
+
+Singleton pattern에 여러 구현방법에 대해서 잘 숙지하고,
+상황에 맞게 선택해서 사용할 수 있도록 하자.
+
+Spring 컨테이너도 싱글톤을 사용하니 알아두면 많이 도움이 될 것
 
 ## Item 4. 인스턴스화를 막으려거든 private 생성자를 사용하라
 

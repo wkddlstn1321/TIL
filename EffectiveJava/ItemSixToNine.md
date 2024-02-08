@@ -97,5 +97,72 @@ public class NicknameUtil {
 이렇게 수정하면 Pattern 객체가 초기화때 한번만 생성되고 이후로는 효율적으로 재사용할 수 있게된다. ~~matcher도 호출할 때 마다 생성되고 있나?~~
 
 ## Item 7. 다 쓴 객체 참조 해제하라
+
+Managed 언어인 Java에서는 가비지 컬렉터를 통해 메모리를 관리한다.
+개발자가 직접 신경쓰지 않아도 사용하지 않는 객체를 회수하기 떄문에 편리하지만 만능은 아니다
+
+기능적으로는 사용하지 않는 객체여도 참조가 남아있다면 가비지 컬렉터가 메모리를 회수하지 않는다.
+
+```java
+// 스택 구현
+public class Stack {
+    private Object[] elements;
+    private int size = 0;
+    private static final int DEFAULT_INITIAL_CAPACITY = 16;
+
+    public Stack() {
+        elements = new Object[DEFAULT_INITIAL_CAPACITY];
+    }
+
+    public void push(Object e) {
+        ensureCapacity();
+        elements[size++] = e;
+    }
+
+    public Object pop() {
+        if (size == 0)
+            throw new EmptyStackException();
+        return elements[--size];
+    }
+
+    private void ensureCapacity() {
+        if (elements.length == size)
+            elements = Arrays.copyOf(elements, 2 * size + 1);
+    }
+}
+```
+
+위 스택을 구현한 코드를 보면 size라는 멤버 변수를 통해 스택의 사이즈를 관리하고 있고 요소를 제거하는 pop 메서드에서 size-- 를 통해 해당 원소의 더 이상 접근하지 않는다.
+
+의도대로면 size 보다 큰 elements의 인덱스 객체는 프로그램에서 더 이상 사용하지 않는 객체이지만 기능상 접근만 하지 않을 뿐 참조가 남아있기 때문에 가비지 컬렉터는 저 객체를 해제하지 않는다.
+
+이런경우는 pop을 호출할 때마다 메모리 누수가 발생하고 있다고 볼 수 있다.
+```java
+// 재구현한 pop
+   public Object pop() {
+       if (size == 0)
+           throw new EmptyStackException();
+       Object result = elements[--size];
+       elements[size] = null; // 다 쓴 참조 해제
+       return result;
+   }
+```
+null 처리를 통해 참조를 끊어줘야 제대로 회수가 된다.
+
+스택같은 경우는 자기메모리를 직접 관리하는 클래스이기 때문에 예외적으로 null 처리를 통해 참조를 끊어줬지만 일반적으로 유호 Scope 범위를 이용하는 것으로 객체 참조를 해제해주는게 효율적이다.
+
+함수가 선언됬을 때 생성된 local 객체는 함수가 종료될 때 해제된다.
+이 때 local 객체가 참조하고 있던 heap 영역의 객체들은 만약 사라진 local 객체가 유일한 참조자였다면 더 이상 참조가 없기 때문에 접근할 수 없게된다. 이렇게되면 즉시 해제되진 않지만 가비지컬렉터의 회수대상이다. 
+
+이게 유효Scope를 이용한 참조 해제 방법
+
+**정리**
+
+가비지 컬렉터는 마법이 아니다.
+아무생각없이 사용하면 누수가 발생할 수 있고 이걸 방지하기 위해서는
+Heap, Stack, Method 등 메모리 구조에 대해서 알고 있어야하며
+JVM, gabage Collector 동작원리를 알고 있는게 중요하겠다.
+
+
 ## Item 8. finalizer와 cleaner 사용을 피하라 
 ## Item 9. try-finally대신 try-with=resources를 사용하라

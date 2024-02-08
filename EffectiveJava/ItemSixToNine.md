@@ -94,7 +94,7 @@ public class NicknameUtil {
 }
 ```
 
-이렇게 수정하면 Pattern 객체가 초기화때 한번만 생성되고 이후로는 재사용하게 된다.
+이렇게 수정하면 Pattern 객체가 초기화때 한번만 생성되고 이후로는 효율적으로 재사용할 수 있게된다. ~~matcher도 호출할 때 마다 생성되고 있나?~~
 
 ## Item 7. 다 쓴 객체 참조 해제하라
 ## Item 8. finalizer와 cleaner 사용을 피하라 

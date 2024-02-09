@@ -154,6 +154,18 @@ null 처리를 통해 참조를 끊어줘야 제대로 회수가 된다.
 함수가 선언됬을 때 생성된 local 객체는 함수가 종료될 때 해제된다.
 이 때 local 객체가 참조하고 있던 heap 영역의 객체들은 만약 사라진 local 객체가 유일한 참조자였다면 더 이상 참조가 없기 때문에 접근할 수 없게된다. 이렇게되면 즉시 해제되진 않지만 가비지컬렉터의 회수대상이다. 
 
+```java
+    private void run() {
+        // 1. 로컬 변수 test가 heap 영역 생성된 Test 객체를 참조
+        Test test = new Test();
+    }
+
+    public static void main(String[] args) {
+        run();
+        // 2. run() 이 끝난 시점에서 로컬변수 test는 해제되고 heap 영역의 Test를 참조하고 있는 변수가 없다.
+    }
+```
+
 이게 유효Scope를 이용한 참조 해제 방법
 
 **정리**
@@ -165,4 +177,26 @@ JVM, gabage Collector 동작원리를 알고 있는게 중요하겠다.
 
 
 ## Item 8. finalizer와 cleaner 사용을 피하라 
+
+* finalizer와 cleaner
+
+    java9에서 부터 권장하지 않는다.
+    
+    가비지 컬렉터가 동작할 때 실행할 로직을 정의할 수 있다.
+
+    C++의 소멸자 처럼 객체가 사라질 때 동작한다고 생각할 수 도 있는데 엄연히 다르다
+
+    가비지 컬렉터의 동작 시점은 예측할 수 없기 때문에
+
+    중요한 작업은 finalizer 에게 맞기면 안된다.
+
+    System.gc 나 System.runFinalization 또한 실행된 가능성을 높여주긴 하지만 보장해주지는 않기 때문에 사용하지 않는것이 좋다.
+
+
+**정리**
+
+Item 9는 사용해 본 적 없는 것들을 사용 하지말라는 내용이어서 가볍게 읽어보고 넘어갔다. 
+
+
+
 ## Item 9. try-finally대신 try-with=resources를 사용하라

@@ -1,4 +1,4 @@
-# 객체 생성과 파괴 (1) - 아이템 6 ~ 9
+# 객체 생성과 파괴 (2) - 아이템 6 ~ 9
 
 ## 목차
 [Item 6. 불필요한 객체 생성 피하라](#item-6-불필요한-객체을-생성-피하라)
@@ -178,7 +178,7 @@ JVM, gabage Collector 동작원리를 알고 있는게 중요하겠다.
 
 ## Item 8. finalizer와 cleaner 사용을 피하라 
 
-* finalizer와 cleaner
+* finalizer
 
     java9에서 부터 권장하지 않는다.
     
@@ -190,13 +190,101 @@ JVM, gabage Collector 동작원리를 알고 있는게 중요하겠다.
 
     중요한 작업은 finalizer 에게 맞기면 안된다.
 
-    System.gc 나 System.runFinalization 또한 실행된 가능성을 높여주긴 하지만 보장해주지는 않기 때문에 사용하지 않는것이 좋다.
+    가비지 컬렉터를 강제로 실행하는 System.gc 를 사용하면 실행 가능성을 높여주긴 하지만 보장해주지는 않기 때문에 사용하지 않는것이 좋다.
 
+* cleaner
+    
+    java9 부터 finalizer를 대신해 도입됐다.
+
+    finalizer와는 다르게 GC가 메모리 정리를 수행하기 전에 실행된다. 객체가 메모리에서 정리되기 전에 외부 자원을 해제
+
+    실행 중 예외가 발생해도 메모리 누수가 발생하지 않는다.
+
+    그러나 성능 저하 가능성과 cleaner에 실행 시점을 개발자가 예측할 수 없다는 단점만은 동일하다.
 
 **정리**
 
-Item 9는 사용해 본 적 없는 것들을 사용 하지말라는 내용이어서 가볍게 읽어보고 넘어갔다. 
+Item 8은 원래도 사용해 본 적 없는 것들을 사용 하지말라는 내용이어서 가볍게 읽어보고 넘어갔다. 
 
 
 
 ## Item 9. try-finally대신 try-with=resources를 사용하라
+
+try-catch-finally 에서 try 블록에서 예외가 발생하는 경우에만 catch블록이 실행됐다면 finally 블록은 try 실행결과와 상관없이 반드시 실행된다.
+
+해당 특성 덕분에 메서드를 호출후 반드시 닫아줘야하는 자원을 사용할 때 유용하게 사용된다.
+
+```java
+BufferedReader br = new BufferedReader(new FileReader(path));
+//readLine 호출 후 close가 보장됨
+try {
+    return br.readLine();
+} finally {
+    br.close();
+}
+```
+
+단, 자원이 많아지면 관리가 힘들어진다.
+```java
+static void copy(String src, String dst) throws IOException {
+    InputStream in = new FileInputStream(src);
+    try {
+        OutputStream out = new FileOutputStream(dst);
+        try {
+            byte[] buf = new byte[BUFFER_SIZE];
+            int n;
+            while ((n = in.read(buf)) >= 0)
+                out.write(buf, 0, n);
+        } finally {
+            out.close();
+        }
+    } finally {
+        in.close();
+    }
+}
+```
+두 번의 try를 중첩해서 사용한 케이스인데 코드 블록이 가독성이 좋지 않고 에러 추적이 좋지 않다.
+두번째 try의 read와 finally의 close가 연속으로 실패한다면 read에서 발생한 에러가 덮어씌워져서 발생시점을 확인할 수 없게 된다. (코드로 해결할 수는 있지만 코드가 지저분해짐)
+
+이러한 문제를 해결하기 위해 try-with-resources가 나왔다.
+
+1. try 블록에서 리소스 객체를 선언한다.
+2. try 블록이 끝나면, 예외 발생 여부와 상관없이 리소스 객체가 자동으로 close 된다.
+
+위 구조를 사용하려면 자원이 AutoCloseable 인터페이스를 구현해야 한다.
+
+AutoCloseable 은 void를 리턴하는 close 메서드 하나만 정의한 인터페이스이다.
+```java
+// AutoCloseable 
+public interface AutoCloseable {
+    void close() throws Exception;
+}
+
+// 닫아줘야하는 자원은 이렇게 처리해줘야 try-with-resources 구조를 사용할 수 있다.
+public class Resource implements AutoCloseable{
+    @Override
+    public void close() throws Exception {
+        throw new Exception("inside Resource exception");
+    }
+}
+```
+
+try-finally copy 예제 코드를 try-with-resources 로 구현
+```java
+static void copy(String src, String dst) throws IOException {
+    try (InputStream   in = new FileInputStream(src);
+         OutputStream out = new FileOutputStream(dst)) {
+        byte[] buf = new byte[BUFFER_SIZE];
+        int n;
+        while ((n = in.read(buf)) >= 0)
+            out.write(buf, 0, n);
+    }
+}
+```
+코드가 간결해졌고 예외가 양쪽에서 발생해도 다 확인할 수 있다.
+
+catch절 도 함께 사용이 가능해서 try 중첩없이 다수의 예외 처리 가능하다. 
+
+**정리**
+
+반드시 사용 후 닫아야 하는 자원을 다룰때는 try-finally 대신 try-with-resources를 사용하자

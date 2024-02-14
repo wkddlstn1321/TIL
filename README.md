@@ -4,14 +4,14 @@
 배운거 정리
 
 
-_4 TILs and counting..._
+_5 TILs and counting..._
 
 ---
 
 ### 2 most recent TILs
 
+- [모든 객체의 공통 메서드 - 아이템 10 ~ 14](EffectiveJava/ItemTenToFour.md) - Wed Feb 14 19:23:14 2024 +0900
 - [객체 생성과 파괴 (1) - 아이템 1 ~ 5](EffectiveJava/ItemOneToFive.md) - Sat Feb 3 23:52:40 2024 +0900
-- [객체 생성과 파괴 (2) - 아이템 6 ~ 9](EffectiveJava/ItemSixToNine.md) - Mon Feb 5 18:14:08 2024 +0900
 
 ### Categories
 
@@ -21,6 +21,7 @@ _4 TILs and counting..._
 ### [EffectiveJava](#EffectiveJava)
 - [객체 생성과 파괴 (1) - 아이템 1 ~ 5](EffectiveJava/ItemOneToFive.md)
 - [객체 생성과 파괴 (2) - 아이템 6 ~ 9](EffectiveJava/ItemSixToNine.md)
+- [모든 객체의 공통 메서드 - 아이템 10 ~ 14](EffectiveJava/ItemTenToFour.md)
 
 ### [Web](#Web)
 - [Cookie 와 Session](Web/C&S.md)

@@ -53,6 +53,10 @@ null이 아닌 참조값일 때를 기준으로 아래 조건들이 성립해야
 class Test{
 	public int a;
 
+	Test(int num) {
+		this.a = num;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof Test) {
@@ -65,11 +69,94 @@ class Test{
 ```
 간단한 Test 클래스를 만들어서 equals를 재정의해보았다. 원래라면 hashcode도 재정의 해야하지만 다음 아이템이기 때문에 여기서는 생략
 
+**정리**
+
 책을 읽으면서 느낀건데 정말 필요한 상황이 아니라면 재정의하지 않는게 좋겠다..
+equals를 구현하기 위해 고려해야 하는 5가지 규약을 확실히 지키기가 생각보다 까다로워 보인다.
 
 ## Item 11. equals를 재정의하려거든 hashcode도 재정의하라
 
+equals를 재정의한 클래스 모두에서 hashcode도 재정의해야 한다.
 
+그렇지 않으면 "equals(Object)가 두 객체를 같다고 판단했다면, 두 객체의 hashCode는 똑같은 값을 반환해야한다." 는 일반 규약을 어기게 된다.
+
+논리적으로 같은 객체는 같은 해시코드를 반환해야 한다.
+
+아래에 코드를 보자
+
+```java
+public static void main(String[] args) {
+	Map<Test, String> map = new HashMap<>();
+	map.put(new Test(10), "홍길동");
+	// null이 출력된다.
+	System.out.println(map.get(new Test(10)));
+}
+```
+홍길동을 의도했지만 null이 반환된다.
+
+Item 10 에서 equals를 재정의한 Test클래스는 멤버변수인 a만 같다면 논리적으로 같은 객체임을 의미하지만 
+hashcode는 재정의 되어있지 않기때문에 둘을 다르다고 판단하여 서로 다른 값을 반환하게 된다.
+이런 경우 hash관련된 자료구조는 사용할 수 없게 되기 때문에 hashcode를 재정의 해줄 필요가 있다.
+
+~~만약 설계상 hash 기능을 안쓰는 클래스라면? 그렇다 해도 미래는 알 수 없다. 안전하게 가야지~~
+
+hashcode를 작성 요령
+
+1. 아주 간단한 방식
+```java
+	@Override
+	public int hashCode() {
+		// 인자는 모든 핵심 필드
+		return Objects.hash(a);
+	}
+```
+Object 클래스는 임의의 개수만큼 객체를 받아 해시코드를 계산해주는 hash 메서드를 제공해준다.
+있는거 그대로 사용하는 아주 간단한 방식!, 그러나 성능은 좋지 못하다고 한다.
+입력 인수를 담기 위한 배열 생성, 입력 중 기본 타입이 있다면 박싱, 언박싱 과정을 거치게 되니,
+성능이 중요한 경우에는 좋지 못한 방법이라고 볼 수 있겠다.
+
+2. 정석
+int result를 아래의 방법으로 초기화
+첫번째 핵심필드(a)의 해시 코드를 계산 
+	* 기본 타입 : Type.hashcode(a)
+	* 참조 타입 :
+		equals가 재귀적 호출 : hashcode도 재귀적 호출 or
+		표준형을 만들고 그 표준형의 hashcode를 호출
+	* 배열 타입 : 핵심원소 각각을 별도 필드처럼 다룬다,
+
+나머지 모든 핵심필드에 대해서 아래 과정 반복
+int result = 31 * result + c;
+
+위 규칙을 멤버변수 b를 추가한 Test 클래스에 적용한 결과
+```java
+@Override
+public int hashCode() {
+	int result = Integer.hashCode(a);
+	result = 31 * Integer.hashCode(b);
+	return result;
+}
+```
+
+아주 정석적인 방식이라고 볼 수 있지만 핵심 필드에 참조 타입과 배열 타입이 포함된다면 머리가 아프지 않을 수 없다.
+
+그럴땐 3번 방법도 고려해봄직 하다.
+
+3. Lombok 활용
+
+``@EqualsAndHashCode(exclude = {"비교에서 제외할 필드"})``
+
+@EqualsAndHashCode 어노테이션을 사용한다면 비교를 원하지않는 필드를 제외하면서 equals와 hashcode를 재정의를 자동으로 해준다.
+성능을 챙기면서 편하게 한줄로 재정의를 해줄 수 있는 마법
+
+물론 진짜 마법은 아니기 때문에 사용할일이 생긴다면 해당 어노테이션의 내부 동작원리는 이해하고 사용하는것이 좋겠다.
+
+
+**정리**
+
+이번기회에 hash동작 방식에 대해서 더 자세히 이해하는 기회가 됐고 equals는 진짜 웬만하면 재정의하지 말자는 교훈도 얻게됐다.
+
+꼭 필요한 경우라면 구현하는게 맞고 그걸 위해서 Item 11을 다루기도 했지만 재정의를 할 때 놓치기 쉬운 실수들이 많아서
+정말 어쩔 수 없을 때만 규칙을 놓치지 말고 잘지켜서 재정의해보자
 
 ## Item 12. toString을 항상 재정의하라
 

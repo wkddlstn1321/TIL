@@ -160,7 +160,74 @@ public int hashCode() {
 
 ## Item 12. toString을 항상 재정의하라
 
+toString에 default value 는 "className@ 16진수로 표현한 hashcode" 이다.
 
+재정의 되지 않은 toString의 기능으로 개발자가 이해할 수 있는 부분은 해당 객체가 어떤 클래스명을 가지고 있는지 까지이다. + hashcode
+
+toString의 일반 규약인 "간결하고 사람이 읽기 쉬운 형태의 유익한 정보를 반환해야 한다" 를 따르자면 재정의를 하는게 맞다.
+
+toString을 직접사용하지 않더라도 오류 메시지를 로깅할 때 자동으로 호출되는 경우도 있기 때문에 overriding을 해주자
+
+**toString 재정의**
+
+객체가 가진 주요 정보는 전부 반환해 주는게 좋다
+
+```java
+//toString을 재정의할 Person 클래스
+public class Person {
+	private String name;
+	private int age;
+	private String address;
+
+	public Person(String name, int age, String address) {
+		this.name = name;
+		this.age = age;
+		this.address = address;
+	}
+}
+```
+
+방법 1. 직접 구현
+```java
+	// 나타내고 싶은 필드들 (핵심 정보들)을 직접 만들어서 리턴해준다.
+	@Override
+	public String toString() {
+		return "Person{" +
+				"name='" + name + '\'' +
+				", age=" + age +
+				", address='" + address + '\'' +
+				'}';
+	}
+```
+
+방법 2. Lombok 의 @ToString 이용
+
+```java
+// 클래스위에 ToStinrg 어노테이션 붙여주면 끝
+@ToString()
+public class Person {
+	... 생략
+}
+```
+Lombok... 아주 편리하다고 볼 수 있다.
+
+대신 Lombok 이용 시 모든 필드 정보를 전부 리턴하기 때문에 필요없는 정보를 빼고 싶다면 exclude를 이용해서 제외해주자
+
+어노테이션의 인자로 추가
+
+``@ToString(exclude = {"address"})``
+
+또는
+
+변수 선언시 추가
+
+``@ToString.Exclude private String address;``
+
+**정리**
+
+toString 구현은 까다롭지 않기 때문에 귀찮더라도 직접 로그를 찍을 일이 있다면 반드시 재정의를 해주자.
+
+Lombok을 사용한다면 어노테이션만 추가하면 구현이 되기 때문에 안 할 이유가 없다.
 
 ## Item 13. clone 재정의는 주의해서 진행해라
 

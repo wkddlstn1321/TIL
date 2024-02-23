@@ -4,19 +4,23 @@
 배운거 정리
 
 
-_5 TILs and counting..._
+_7 TILs and counting..._
 
 ---
 
 ### 2 most recent TILs
 
-- [모든 객체의 공통 메서드 - 아이템 10 ~ 14](EffectiveJava/ItemTenToFour.md) - Wed Feb 14 19:23:14 2024 +0900
-- [객체 생성과 파괴 (1) - 아이템 1 ~ 5](EffectiveJava/ItemOneToFive.md) - Sat Feb 3 23:52:40 2024 +0900
+- [Cookie 와 Session](Web/Cookie&Session.md) - Mon Feb 19 16:23:13 2024 +0900
+- [OAuth 2.0](Web/OAuth.md) - Mon Feb 19 16:23:13 2024 +0900
 
 ### Categories
 
+- [DataBase](#DataBase)
 - [EffectiveJava](#EffectiveJava)
 - [Web](#Web)
+
+### [DataBase](#DataBase)
+- [DB 기본 지식](DataBase/기본지식.md)
 
 ### [EffectiveJava](#EffectiveJava)
 - [객체 생성과 파괴 (1) - 아이템 1 ~ 5](EffectiveJava/ItemOneToFive.md)
@@ -24,7 +28,8 @@ _5 TILs and counting..._
 - [모든 객체의 공통 메서드 - 아이템 10 ~ 14](EffectiveJava/ItemTenToFour.md)
 
 ### [Web](#Web)
-- [Cookie 와 Session](Web/C&S.md)
+- [Cookie 와 Session](Web/Cookie&Session.md)
+- [OAuth 2.0](Web/OAuth.md)
 - [HTTP](Web/http.md)
 
 [1]: https://simonwillison.net/2020/Apr/20/self-rewriting-readme/

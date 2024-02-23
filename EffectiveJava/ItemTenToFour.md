@@ -268,3 +268,31 @@ clone의 리턴값은 Object다. 또는 자식 클래스였다면 상속받은 �
 
 ## Item 14. comparable을 구현할지 고민하라
 
+comparable은 compareTo 메서드를 가지고 있는 인터페이스이다.
+
+```java
+public interface Comparable<T> {
+    public int compareTo(T o);
+}
+```
+
+compareTo는 객체의 순서를 비교한다. (대소 비교)
+
+쉽게말해 comparable을 구현한 객체는 비교가 가능하며 그로인해 정렬이 가능하다는것을 의미한다.
+
+**규약**
+
+이 객체와 주어진 객체의 순서를 비교한다.
+
+주어진 객체보다 작은 경우 음의 정수를 반환, 같은 경우 0을 반환, 큰 경우 양의 정수를 반환한다 (-1, 0, 1)
+
+만약 비교할 수 없는 객체가 주어진다면 ClassCastException을 던진다.
+
+equals에서 다루었던 추이성, 대칭성, 반사성을 만족해야한다.
+
+null 처리가 가능해야 한다. null은 다른 모든 객체보다 작거나 큰것으로 간주 되는데 compareTo()도 마찬가지로 null과의 비교를 수행할 수 있어야한다.
+
+추가적으로 필수는 아니지만 (x.compareTo(y) == 0) == (x.equals(y)) 조건을 만족해주면 좋다. 해당 규약을 어기면 정렬된 컬렉션에 넣을 때 문제가 발생할 수 도 있다.
+
+**정의**
+

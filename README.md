@@ -4,14 +4,14 @@
 배운거 정리
 
 
-_8 TILs and counting..._
+_9 TILs and counting..._
 
 ---
 
 ### 2 most recent TILs
 
+- [브라우저](Web/browser.md) - Thu Feb 29 02:02:39 2024 +0900
 - [JVM](Java/JVM.md) - Mon Feb 26 23:49:20 2024 +0900
-- [OAuth 2.0](Web/OAuth.md) - Mon Feb 19 16:23:13 2024 +0900
 
 ### Categories
 
@@ -34,6 +34,7 @@ _8 TILs and counting..._
 ### [Web](#Web)
 - [Cookie 와 Session](Web/Cookie&Session.md)
 - [OAuth 2.0](Web/OAuth.md)
+- [브라우저](Web/browser.md)
 - [HTTP](Web/http.md)
 
 [1]: https://simonwillison.net/2020/Apr/20/self-rewriting-readme/

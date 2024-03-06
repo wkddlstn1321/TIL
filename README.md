@@ -4,7 +4,7 @@
 배운거 정리
 
 
-_9 TILs and counting..._
+_10 TILs and counting..._
 
 ---
 
@@ -30,6 +30,7 @@ _9 TILs and counting..._
 
 ### [Java](#Java)
 - [JVM](Java/JVM.md)
+- [객체지향](Java/객체지향.md)
 
 ### [Web](#Web)
 - [Cookie 와 Session](Web/Cookie&Session.md)

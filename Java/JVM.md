@@ -91,3 +91,109 @@ JVM 실행엔진은 원래 인터프리터 방식을 사용했는데 인터프�
 - Native Method
     
     자바 외 언어로 작성 된 네이티브 코드를 위한 메모리 영역
+
+
+### GC 동작원리
+
+
+**Mark and Sweep**
+
+GC는 heap메모리 구조에서 참조되고 있지 않는 객체들을 대상으로 동작한다.
+
+그렇기 때문에 GC는 객체의 참조여부를 판단해야 하는데 이때 Mark and Sweep 알고리즘을 사용한다.
+
+1단계 : Mark
+
+참조 되고 있는 객체들을 대상으로 마크를 찍는 단계이다.
+
+우선 객체가 생성되면 0(false)으로 표시비트를 남긴다.
+
+마크단계에선 루트 노드로 부터 연결된 객체들의 표시비트를 전부 1로 바꾼다.
+
+루트 노드는 프로그램 실행 중 접근 가능한 객체들을 의미하며 루트 노드의 조건은 아래와 같다.
+
+1. 스택 프레임 (현재 실행중인 메소드의 로컬 변수)
+2. static 변수 (정적 변수의 수명은 == 프로그램 수명)
+3. JNI (JNI는 Java와 외부 네이티브 언어를 매핑하는 인터페이스인데 이 때 네이티브 코드가 참조하는 java 객체는 루트노드 취급)
+
+추가로 실행중인 Thread, 레지스터 등이 포함될 수 도 있다.
+
+모든 루트 노드들에 아래 처럼 코드를 돌리며 현재 루트 노드와 연결된 모든 객체들의 표시비트를 1(true)로 바꾸는게 Mark 단계이다. 
+
+```
+Mark(root)
+If markedBit(root) = false then
+                     markedBit(root) = true
+                                       For each v referenced by root
+                                       Mark(v)
+```
+
+2 단계 : Sweep
+
+숙청의 시간 마크가 찍히지 않은 객체들을 청소하는 단계
+
+```
+Sweep()
+p는 heap 영역에 있는 각각의 모든 객체들을 의미한다. 
+If markedBit(p) = true then
+                  markedBit(p) = false
+                                 else
+                                     heap.release(p)
+```
+
+마크가 1이면 마크를 0으로 바꾸고 넘어감,
+마크가 0이면 객체를 제거한다.
+
+위 2단계를 진행함으로 객체의 참조 여부를 판단할 수 있다.
+
+
+**동작 시점**
+
+heap의 메모리 구조는 young과 old 2가지 영역이 존재한다. 
+
+1. young 영역
+    young 영역은 다시 eden, survival0, survival1 3가지 영역으로 구분된다.
+    * eden
+
+        new 등을 통해 생성된 객체가 저장되는 영역이다.
+        이 영역이 가득차게 되면 GC가 발생하게 되고 이를 Minor GC라고 한다.
+
+        GC 발생 이후 살아남은 객체들은 survival 영역으로 보내진다.
+    * survival0 & survival1
+  
+        한번 이상의 GC에서 살아남은 객체들이 저장된다. 
+        survival 0과 1 두 영역중 한군데는 반드시 비어있어야 하는데 GC가 발생할 때 eden에서 넘어온 객체와 survival 0또는 1에 있던 객체들을 모아서 비어있는 survival 영역으로 전부 이동시킨다.
+        이때 살아남은 객체들은 age가 하나씩 올라간다.
+
+2. old 영역
+
+    Minor GC가 발생할 때마다 살아남은 객체의 age가 일정 임계값을 넘기면 오게되는 영역이다. 오래 살아남은 객체들만 넘어오는 경로당으로 young 영역보다 메모리 공간이 크게 할당된다. 
+
+    old 영역 또한 가득차면 GC가 발생하는데 이를 Major GC 또는 Full GC 라고 부른다. 
+    
+    old 영역이 공간이 더 크기 때문에 Minor GC보다 Major GC가 시간이 더 오래걸린다,
+
+JVM 은 GC가 실행될 때 GC를 제외한 다른 모든 동작을 멈춘다.
+
+이를 STW(Stop The World) 라고 하는데 (이름 참 직관적이네)
+
+GC가 자주 발생하면 프로그램이 자꾸 멈추기 때문에 성능에 악영향을 끼치게 된다.
+
+특히 Major GC 가 자주 발생하지 않도록 안쓰는 변수들은 참조를 즉시 해제주면 좋겠다. 
+
+**종류**
+
+java 발전과 함께 상황에 따라 최적화가 가능한 여러 GC 알고리즘들이 개발되어 왔다.
+
+Eplison, Shenandoah, ZGC, G1, Parallel ....Etc
+
+많은 종류의 GC 알고리즘이 있고 설정을 통해 java에 적용해 줄 수 있다.
+
+실시간 성 또는 성능이 중요한 프로그램을 구현해야 한다면 상황에 맞는 GC 알고리즘을 선택해서 적용하는게 중요하다 볼 수 있겠다.
+
+
+
+
+
+
+https://www.geeksforgeeks.org/mark-and-sweep-garbage-collection-algorithm/

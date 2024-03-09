@@ -192,8 +192,4 @@ Eplison, Shenandoah, ZGC, G1, Parallel ....Etc
 실시간 성 또는 성능이 중요한 프로그램을 구현해야 한다면 상황에 맞는 GC 알고리즘을 선택해서 적용하는게 중요하다 볼 수 있겠다.
 
 
-
-
-
-
 https://www.geeksforgeeks.org/mark-and-sweep-garbage-collection-algorithm/

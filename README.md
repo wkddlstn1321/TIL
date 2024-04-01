@@ -4,7 +4,7 @@
 배운거 정리
 
 
-_11 TILs and counting..._
+_12 TILs and counting..._
 
 ---
 
@@ -21,6 +21,7 @@ _11 TILs and counting..._
 - [Web](#Web)
 
 ### [DataBase](#DataBase)
+- [MySql](DataBase/mysql.md)
 - [DB 기본 지식](DataBase/기본지식.md)
 
 ### [EffectiveJava](#EffectiveJava)
